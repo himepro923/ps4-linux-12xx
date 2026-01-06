@@ -37,12 +37,15 @@ jobs:
       
       #  Technically unnnecessary now since we do the checkout into workspace anyway. Would have to move
       #  dockerx build after cache-workspace-restore step
-      - name: Download Dockerfile
+      - name: Prepare Dockerfile
         run: |
-         curl -fL https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/Dockerfile -o Dockerfile
-         curl -fL https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/.dockerignore -o .dockerignore
-         # -verbose, -fail if server error, -Links follow,
-
+          # If the file exists in the repo, we don't need to download it
+          if [ -f "./Dockerfile" ]; then
+            echo "Dockerfile found in repository, using local copy."
+          else
+            echo "Dockerfile not found! Check your branch."
+            exit 1
+          fi
       - name: Show username and group info
         run: |
           echo "Actions Runner Username: $(whoami)"
